@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from rococo.models.versioned_model import VersionedModel
 
 
-@dataclass
+@dataclass()
 class Task(VersionedModel):
     use_type_checking: ClassVar[bool] = True
 
@@ -12,3 +12,4 @@ class Task(VersionedModel):
     title: str = None
     description: str = None
     is_complete: bool = False
+    active: bool = True
