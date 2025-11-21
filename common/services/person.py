@@ -28,3 +28,24 @@ class PersonService:
     def get_person_by_id(self, entity_id: str):
         person = self.person_repo.get_one({"entity_id": entity_id})
         return person
+
+    def get_all_persons(self):
+        persons = self.person_repo.get_many()
+        return persons
+
+    def update_person(self, person: Person):
+        person = self.person_repo.update_person(person)
+        return person
+
+    def delete_person(self, person: Person):
+        print (person.as_dict())
+        person = self.person_repo.delete(person)
+        return person
+
+    def create_person(self, first_name: str, last_name: str):
+        person = Person(
+            first_name=first_name,
+            last_name=last_name
+        )
+        person = self.person_repo.add_person(person)
+        return person
