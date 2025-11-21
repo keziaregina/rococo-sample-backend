@@ -13,7 +13,7 @@ class OrganizationRepository(BaseRepository):
             ON o.entity_id = por.organization_id
             WHERE por.person_id = %s;
         """
-        params = (person_id,)
+        params = (person_id)
 
         with self.adapter:
             results = self.adapter.execute_query(query, params)

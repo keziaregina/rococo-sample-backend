@@ -53,7 +53,7 @@ class Delete(Resource):
     def delete(self, person_id):
         person_service = PersonService(config)
         person = person_service.get_person_by_id(person_id)
-        person_service.delete_person(person)
+        person_service.delete_person_by_id(person)
         return get_success_response(message="Person deleted successfully.", person=person)
 
 @person_api.route('/create')
@@ -63,5 +63,9 @@ class Create(Resource):
         validate_required_fields(parsed_body)
 
         person_service = PersonService(config)
-        person = person_service.create_person(parsed_body['first_name'], parsed_body['last_name'])
+        person = Person(
+            first_name=parsed_body['first_name'],
+            last_name=parsed_body['last_name'],
+        )
+        person = person_service.save_person(person)
         return get_success_response(message="Person created successfully.", person=person)
