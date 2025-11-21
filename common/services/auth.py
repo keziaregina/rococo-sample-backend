@@ -32,10 +32,10 @@ class AuthService:
 
         self.message_sender = MessageSender()
 
-    def signup(self, email, first_name, last_name, password):
+    def signup(self, email, first_name, last_name):
         login_method = LoginMethod(
             method_type=LoginMethodType.EMAIL_PASSWORD,
-            raw_password=password
+            raw_password=self.config.DEFAULT_USER_PASSWORD
         )
 
         existing_email = self.email_service.get_email_by_email_address(email)
