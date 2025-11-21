@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional
+from enum import Enum
 import string
 
 from werkzeug.security import generate_password_hash
@@ -8,10 +9,16 @@ from rococo.models.login_method import LoginMethodType
 from rococo.models.versioned_model import ModelValidationError
 from rococo.models import LoginMethod as BaseLoginMethod
 
+class LoginMethodType(str, Enum):
+    EMAIL_PASSWORD = 'email-password'
+    GOOGLE = 'oauth-google'
+    MICROSOFT = 'oauth-microsoft'
+
 
 @dataclass
 class LoginMethod(BaseLoginMethod):
 
+    method_type: LoginMethodType
     raw_password: Optional[str] = field(repr=False, default=None)  # Temporary field
 
     def __post_init__(self, *args, **kwargs):

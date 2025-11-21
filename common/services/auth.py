@@ -32,10 +32,10 @@ class AuthService:
 
         self.message_sender = MessageSender()
 
-    def signup(self, email, first_name, last_name):
+    def signup(self, email, first_name, last_name, password):
         login_method = LoginMethod(
             method_type=LoginMethodType.EMAIL_PASSWORD,
-            raw_password=self.config.DEFAULT_USER_PASSWORD
+            raw_password=password
         )
 
         existing_email = self.email_service.get_email_by_email_address(email)
@@ -53,9 +53,6 @@ class AuthService:
 
         email = Email(person_id=person.entity_id, email=email)
 
-        login_method.person_id = person.entity_id
-        login_method.email_id = email.entity_id
-
         organization = Organization(
             name=f"{first_name}'s Organization"
         )
@@ -66,8 +63,12 @@ class AuthService:
             role="admin"
         )
 
-        email = self.email_service.save_email(email)
         person = self.person_service.save_person(person)
+        email.person_id = person.entity_id
+        email = self.email_service.save_email(email)
+
+        login_method.person_id = person.entity_id
+        login_method.email_id = email.entity_id
         login_method = self.login_method_service.save_login_method(login_method)
 
         self.organization_service.save_organization(organization)

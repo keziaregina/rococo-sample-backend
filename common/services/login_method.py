@@ -10,11 +10,11 @@ class LoginMethodService:
         self.login_method_repo = self.repository_factory.get_repository(RepoType.LOGIN_METHOD)
 
     def save_login_method(self, login_method: LoginMethod):
-        login_method = self.login_method_repo.save(login_method)
+        login_method = self.login_method_repo.create_login_method(login_method)
         return login_method
 
     def get_login_method_by_email_id(self, email_id: str):
-        login_method = self.login_method_repo.get_one({"email_id": email_id})
+        login_method = self.login_method_repo.get_login_method_by_email_id(email_id)
         return login_method
     
     def get_login_method_by_id(self, entity_id: str):

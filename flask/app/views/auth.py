@@ -25,19 +25,21 @@ class Signup(Resource):
         {'type': 'object', 'properties': {
             'first_name': {'type': 'string'},
             'last_name': {'type': 'string'},
-            'email_address': {'type': 'string'}
+            'email': {'type': 'string'},
+            'password': {'type': 'string'}
         }}
     )
     def post(self):
-        parsed_body = parse_request_body(request, ['first_name', 'last_name', 'email_address'])
+        parsed_body = parse_request_body(request, ['first_name', 'last_name', 'email', 'password'])
         validate_required_fields(parsed_body)
 
         auth_service = AuthService(config)
 
         auth_service.signup(
-            parsed_body['email_address'],
+            parsed_body['email'].strip().lower(),
             parsed_body['first_name'],
-            parsed_body['last_name']
+            parsed_body['last_name'],
+            parsed_body['password']
         )
         return get_success_response(message="User signed up successfully and verification email is sent.")
 
@@ -56,12 +58,13 @@ class Login(Resource):
 
         auth_service = AuthService(config)
         access_token, expiry = auth_service.login_user_by_email_password(
-            parsed_body['email'], 
+            parsed_body['email'].strip().lower(), 
             parsed_body['password']
         )
 
         person_service = PersonService(config)
         person = person_service.get_person_by_email_address(email_address=parsed_body['email'])
+        print('person', person)
 
         return get_success_response(person=person.as_dict(), access_token=access_token, expiry=expiry)
 
