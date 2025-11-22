@@ -5,6 +5,8 @@ from common.models.person import Person
 from rococo.models.versioned_model import VersionedModel
 from app.helpers.response import get_success_response, get_failure_response, parse_request_body, validate_required_fields
 
+from common.app_logger import logger
+
 
 class PersonRepository(BaseRepository):
     MODEL = Person
@@ -14,23 +16,43 @@ class PersonRepository(BaseRepository):
             first_name = person.first_name,
             last_name = person.last_name,
         )
-        self.save(new_person)
-        return new_person
+        try:
+            self.save(new_person)
+            return new_person 
+        except Exception as e:
+            logger.error(f"Failed to create person: {str(e)}")
+            raise
 
     def update_person(self, person: VersionedModel):
         person.first_name = person.first_name
         person.last_name = person.last_name
-        self.save(person)
-        return person
+        try:
+            self.save(person)
+            return person
+        except Exception as e:
+            logger.error(f"Failed to update person: {str(e)}")
+            raise
 
     def get_person_by_id(self, entity_id: str):
-        person = self.get_one({"entity_id": entity_id})
-        return person
+        try:
+            person = self.get_one({"entity_id": entity_id})
+            return person
+        except Exception as e:
+            logger.error(f"Failed to get person by id: {str(e)}")
+            raise
 
     def get_all_persons(self):
-        persons = self.get_many()
-        return persons
+        try:
+            persons = self.get_many()
+            return persons
+        except Exception as e:
+            logger.error(f"Failed to get all persons: {str(e)}")
+            raise
 
     def delete_person_by_id(self, person: Person):
-        self.delete(person)
-        return person
+        try:
+            self.delete(person)
+            return person
+        except Exception as e:
+            logger.error(f"Failed to delete person by id: {str(e)}")
+            raise
