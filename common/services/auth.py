@@ -31,7 +31,7 @@ class AuthService:
         self.person_organization_role_service = PersonOrganizationRoleService(config)
 
         self.message_sender = MessageSender()
-
+ 
     def signup(self, email, first_name, last_name):
         login_method = LoginMethod(
             method_type=LoginMethodType.EMAIL_PASSWORD,
