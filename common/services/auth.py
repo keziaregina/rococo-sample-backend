@@ -9,7 +9,7 @@ from common.services import (
 )
 from common.models import Person, Email, LoginMethod, Organization, PersonOrganizationRole
 from common.models.login_method import LoginMethodType
-from common.tasks.send_message import MessageSender
+from common.tasks.send_message import MessageSender, process_email_message
 from common.app_logger import logger
 
 from common.helpers.string_utils import urlsafe_base64_encode, force_bytes
@@ -105,9 +105,17 @@ class AuthService:
                 },
                 "to_emails": [email],
             }
-            logger.info("confirmation_link")
-            logger.info(confirmation_link)
-            self.message_sender.send_message(self.EMAIL_TRANSMITTER_QUEUE_NAME, message)
+            try:
+                process_email_message(message)
+                logger.info(f"Welcome email sent directly to {email}")
+            except Exception as e:
+                logger.error(f"Failed to send welcome email directly: {str(e)}")
+                try:
+                    self.message_sender.send_message(self.EMAIL_TRANSMITTER_QUEUE_NAME, message)
+                    logger.info(f"Welcome email sent to queue as fallback")
+                except Exception as queue_error:
+                    logger.error(f"Failed to send welcome email to queue: {str(queue_error)}")
+                    raise
 
     def login_user_by_email_password(self, email: str, password: str):
         email_obj = self.email_service.get_email_by_email_address(email)
@@ -264,9 +272,6 @@ class AuthService:
         if not person:
             raise APIException("Person does not exist.")
 
-        logger.info("person")
-        logger.info(person)
-
         login_method = self.login_method_service.get_login_method_by_email_id(email_obj.entity_id)
         if not login_method:
             raise APIException("Login method does not exist.")
@@ -282,7 +287,17 @@ class AuthService:
                 },
                 "to_emails": [email],
             }
-            self.message_sender.send_message(self.EMAIL_TRANSMITTER_QUEUE_NAME, message)
+            try:
+                process_email_message(message)
+                logger.info(f"Password reset email sent directly to {email}")
+            except Exception as e:
+                logger.error(f"Failed to send password reset email directly: {str(e)}")
+                try:
+                    self.message_sender.send_message(self.EMAIL_TRANSMITTER_QUEUE_NAME, message)
+                    logger.info(f"Password reset email sent to queue as fallback")
+                except Exception as queue_error:
+                    logger.error(f"Failed to send password reset email to queue: {str(queue_error)}")
+                    raise
 
     def reset_user_password(self, token: str, uidb64: str, password: str):
         # Create new login method temporarily to validate and generate hashed password in its `password` field.`
