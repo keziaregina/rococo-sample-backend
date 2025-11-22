@@ -221,7 +221,7 @@ class EmailConsumer:
         try:
             channel.start_consuming()
         except KeyboardInterrupt:
-            logger.info("Stopping consumer...")
+            logger.info("Stopping consumer")
             channel.stop_consuming()
         finally:
             connection.close()
