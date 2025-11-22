@@ -10,32 +10,27 @@ from common.app_config import config
 person_api = Namespace('person', description="Person-related APIs")
 
 
-@person_api.route('/me/<person_id>')
+@person_api.route('/me')
 class Me(Resource):
     
-    # @login_required()
-    def get(self, person_id):
-        person_service = PersonService(config)
-        person = person_service.get_person_by_id(person_id)
+    @login_required()
+    def get(self, person):
         return get_success_response(person=person)
 
-@person_api.route('/me/update/<person_id>')
+@person_api.route('/me/update')
 class update(Resource):
+    @login_required()
     @person_api.expect(
         {'type': 'object', 'properties': {
-            # 'person_id': {'type': 'string'},
             'first_name': {'type': 'string'},
-            'last_name': {'type': 'string'},
+            'last_name': {'type': 'string'}, 
         }}
     )
-    def put(self, person_id):
+    def put(self, person):
         parsed_body = parse_request_body(request, ['first_name', 'last_name'])
         validate_required_fields(parsed_body)
 
         person_service = PersonService(config)
-        person = person_service.get_person_by_id(person_id)
-        print('test')
-        # person.entity_id = person_id
         person.first_name = parsed_body['first_name']
         person.last_name = parsed_body['last_name']
         person_service.update_person(person)
@@ -43,18 +38,11 @@ class update(Resource):
 
 @person_api.route('/all')
 class All(Resource):
-    def get(self):
+    @login_required()
+    def get(self, person):
         person_service = PersonService(config)
         persons = person_service.get_all_persons()
         return get_success_response(persons=persons)
-
-@person_api.route('/delete/<person_id>')
-class Delete(Resource):
-    def delete(self, person_id):
-        person_service = PersonService(config)
-        person = person_service.get_person_by_id(person_id)
-        person_service.delete_person_by_id(person)
-        return get_success_response(message="Person deleted successfully.", person=person)
 
 @person_api.route('/create')
 class Create(Resource):

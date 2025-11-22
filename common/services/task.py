@@ -1,3 +1,4 @@
+from common.models.person import Person
 from common.repositories.factory import RepositoryFactory, RepoType
 from common.models.task import Task
 
@@ -13,8 +14,9 @@ class TaskService:
         task = self.task_repo.get_task_by_id(entity_id)
         return task
 
-    def create_task(self, title: str, description: str):
+    def create_task(self, person: Person, title: str, description: str):
         task = Task(
+            person_id = person.entity_id,
             title = title,
             description = description,
         )

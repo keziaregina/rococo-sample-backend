@@ -11,36 +11,39 @@ task_api = Namespace('task', description="Task-related APIs")
 
 @task_api.route('/create')
 class Create(Resource):
+    @login_required()
     @task_api.expect(
         {'type': 'object', 'properties': {
             'title': {'type': 'string'},
             'description': {'type': 'string'},
         }}
     )
-    def post(self):
+    def post(self, person):
         parsed_body = parse_request_body(request, ['title', 'description'])
         validate_required_fields(parsed_body)
         task_service = TaskService(config)
-        task = task_service.create_task(parsed_body['title'], parsed_body['description'])
+        task = task_service.create_task(person, parsed_body['title'], parsed_body['description'])
         return get_success_response(message="Task created successfully.", task=task)
 
-@task_api.route('/list/<person_id>')
+@task_api.route('/list')
 class List(Resource):
-    def get(self, person_id):
-        is_complete = request.args.get('is_complete', None)
+    @login_required()
+    def get(self, person):
+        is_complete = request.args.get('is_complete', None) 
         task_service = TaskService(config)
-        tasks = task_service.get_tasks_by_person_id(person_id, is_complete)
+        tasks = task_service.get_tasks_by_person_id(person.entity_id, is_complete)
         return get_success_response(tasks=tasks)
 
 @task_api.route('/update/<task_id>')
 class Update(Resource):
+    @login_required()
     @task_api.expect(
         {'type': 'object', 'properties': {
             'title': {'type': 'string'},
             'description': {'type': 'string'},
         }}
     )
-    def put(self, task_id):
+    def put(self, task_id, person):
         parsed_body = parse_request_body(request, ['title', 'description'])
         validate_required_fields(parsed_body)
         task_service = TaskService(config)
@@ -52,7 +55,8 @@ class Update(Resource):
 
 @task_api.route('/delete/<task_id>')
 class Delete(Resource):
-    def delete(self, task_id):
+    @login_required()
+    def delete(self, task_id, person):
         task_service = TaskService(config)
         task = task_service.get_task_by_id(task_id)
         print ("task", task)
@@ -61,7 +65,8 @@ class Delete(Resource):
 
 @task_api.route('/complete/<task_id>')
 class Complete(Resource):
-    def put(self, task_id):
+    @login_required()
+    def put(self, task_id, person):
         task_service = TaskService(config)
         task = task_service.get_task_by_id(task_id)
         task.is_complete = True
@@ -70,7 +75,8 @@ class Complete(Resource):
 
 @task_api.route('/incomplete/<task_id>')
 class Incomplete(Resource):
-    def put(self, task_id):
+    @login_required()
+    def put(self, task_id, person):
         task_service = TaskService(config)
         task = task_service.get_task_by_id(task_id)
         task.is_complete = False
@@ -78,7 +84,8 @@ class Incomplete(Resource):
         return get_success_response(message="Task incomplete successfully.", task=task)
 
 @task_api.route('/find/<task_id>')
-class Task(Resource):
+class TaskById(Resource):
+    @login_required()
     def get(self, task_id):
         task_service = TaskService(config)
         task = task_service.get_task_by_id(task_id)

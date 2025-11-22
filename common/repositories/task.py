@@ -9,14 +9,8 @@ class TaskRepository(BaseRepository):
     MODEL = Task
 
     def create_task(self, task: Task):
-        new_task = Task(
-            person_id=1,
-            title = task.title,
-            description = task.description,
-            is_complete = False,
-        )
-        self.save(new_task)
-        return new_task
+        self.save(task)
+        return task
 
     def get_task_by_id(self, entity_id: str):
         task = self.get_one({"entity_id": entity_id})
