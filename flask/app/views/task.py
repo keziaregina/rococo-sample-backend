@@ -16,7 +16,7 @@ class Create(Resource):
         {'type': 'object', 'properties': {
             'title': {'type': 'string'},
             'description': {'type': 'string'},
-        }}
+        },}
     )
     def post(self, person):
         parsed_body = parse_request_body(request, ['title', 'description'])

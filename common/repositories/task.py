@@ -1,29 +1,30 @@
 import datetime
 from uuid import UUID
+from common.app_logger import logger
 from common.repositories.base import BaseRepository
 from common.models.task import Task
-from rococo.models.versioned_model import VersionedModel
 
 
 class TaskRepository(BaseRepository):
     MODEL = Task
 
     def create_task(self, task: Task):
-        self.save(task)
-        return task
+        try:
+            self.save(task)
+            return task
+        except Exception as e:
+            logger.error(f"Failed to create task: {str(e)}")
+            raise
 
     def get_task_by_id(self, entity_id: str):
-        task = self.get_one({"entity_id": entity_id})
-        return task
+        try:
+            task = self.get_one({"entity_id": entity_id})
+            return task
+        except Exception as e:
+            logger.error(f"Failed to get task by id: {str(e)}")
+            raise
 
     def get_tasks_by_person_id(self, person_id: int, is_complete: bool = None):
-        # query = """
-        #     SELECT * FROM task WHERE person_id = %s;
-        # """
-        # params = (person_id, is_complete)
-        #     results = self.adapter.execute_query(query, params)
-        #     return results
-
         if is_complete is None:
             return self.get_many({"person_id": person_id})
         else:
@@ -34,19 +35,35 @@ class TaskRepository(BaseRepository):
         task.title = task.title
         task.description = task.description
 
-        self.save(task)
-        return task
+        try:
+            self.save(task)
+            return task
+        except Exception as e:
+            logger.error(f"Failed to update task: {str(e)}")
+            raise
 
     def delete_task(self, task: Task):
-        self.delete(task)
-        return task
+        try:
+            self.delete(task)
+            return task
+        except Exception as e:
+            logger.error(f"Failed to delete task: {str(e)}")
+            raise
 
     def mark_as_complete(self, task: Task):
         task.is_complete = True
-        self.save(task)
-        return task
+        try:
+            self.save(task)
+            return task
+        except Exception as e:
+            logger.error(f"Failed to mark as complete: {str(e)}")
+            raise
 
     def mark_as_incomplete(self, task: Task):
         task.is_complete = False
-        self.save(task)
-        return task
+        try:
+            self.save(task)
+            return task
+        except Exception as e:
+            logger.error(f"Failed to mark as incomplete: {str(e)}")
+            raise
